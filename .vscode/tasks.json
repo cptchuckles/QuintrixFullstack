@@ -7,10 +7,11 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Client/QuintrixFullstack.Client.csproj",
+                "${workspaceFolder}/Server/QuintrixFullstack.Server.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
+            "group": "build",
             "problemMatcher": "$msCompile"
         },
         {
@@ -19,7 +20,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Client/QuintrixFullstack.Client.csproj",
+                "${workspaceFolder}/Server/QuintrixFullstack.Server.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +34,9 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/Client/QuintrixFullstack.Client.csproj"
+                "${workspaceFolder}/Server/QuintrixFullstack.Server.csproj",
+                "--launch-profile",
+                "QuintrixFullstack.Server"
             ],
             "problemMatcher": "$msCompile"
         }

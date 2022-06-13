@@ -38,24 +38,23 @@ namespace QuintrixFullstack.Server.Controllers
 
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            _context.Add<User>(new User() {
+            var user = new User() {
                 Username = request.Username,
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt
-            });
+            };
+            _context.Add(user);
             _context.SaveChanges();
 
-            return new ObjectResult($"User created: {request.Username}") {
-                StatusCode = 201,
-            };
+            return Ok(CreateToken(user));
         }
 
         [AllowAnonymous]
         [HttpPost("Login")]
         public ActionResult<string> Login([FromBody] UserLoginDto request)
         {
-            var user = _context.Users!.FirstOrDefault(
+            var user = _context.Users?.FirstOrDefault(
                 u => u.Username.ToLower() == request.UsernameOrEmail.ToLower()
                   || u.Email.ToLower() == request.UsernameOrEmail.ToLower());
 
@@ -63,7 +62,7 @@ namespace QuintrixFullstack.Server.Controllers
                 return BadRequest("Username/Email or Password incorrect");
             
             if (! VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-                return BadRequest("Username/Email or Password incorrect");
+                return BadRequest("Password incorrect");
 
             return Ok(CreateToken(user));
         }

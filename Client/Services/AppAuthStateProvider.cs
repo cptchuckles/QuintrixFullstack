@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,21 +10,25 @@ namespace QuintrixFullstack.Client.Services
 {
     public class AppAuthStateProvider : AuthenticationStateProvider
     {
-        private string? _token;
+        private IAuthTokenProvider _tokenProvider;
+        private HttpClient _http;
 
-        public AppAuthStateProvider(IAuthTokenProvider authTokenProvider)
+        public AppAuthStateProvider(IAuthTokenProvider authTokenProvider, HttpClient http)
         {
-            _token = authTokenProvider.Token;
+            _tokenProvider = authTokenProvider;
+            _http = http;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var identity = _token is null
+            var identity = _tokenProvider.Token is null
                 ? new ClaimsIdentity()
-                : new ClaimsIdentity(ParseClaimsFromJwt(_token), "jwt");
+                : new ClaimsIdentity(ParseClaimsFromJwt(_tokenProvider.Token), "jwt");
 
             var user = new ClaimsPrincipal(identity);
             var state = new AuthenticationState(user);
+
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _tokenProvider.Token);
 
             NotifyAuthenticationStateChanged(Task.FromResult(state));
 

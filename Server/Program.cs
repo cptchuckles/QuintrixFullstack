@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using QuintrixFullstack.Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,28 @@ if (Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT")?.ToLower() == "prod
 builder.Services.AddDbContext<DbContext, AppDbContext>(
     options => options.UseSqlite(builder.Configuration.GetConnectionString(connectionString))
     );
+
+// Copy-pastad a bunch of shit (well i typed it) to get Bearer authentication working in Swagger.
+builder.Services.AddSwaggerGen(options => {
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "You must type the word \"Bearer\", followed by a space, and then paste your JWT"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                    Reference = new OpenApiReference {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer" }}
+            ,
+            new string[] {}
+        }
+    });
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -45,6 +68,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.UseWebAssemblyDebugging();
 }
 else

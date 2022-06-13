@@ -8,9 +8,14 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (requestError is null && forecasts is null)
 {
     <p><em>Loading...</em></p>
+}
+else if (requestError is not null)
+{
+    <h3>Error: @requestError.StatusCode</h3>
+    <p>@requestError.Message</p>
 }
 else
 {
@@ -39,9 +44,17 @@ else
 
 @code {
     private WeatherForecast[]? forecasts;
+    private HttpRequestException? requestError;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        try
+        {
+            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        }
+        catch(HttpRequestException e)
+        {
+            requestError = e;
+        }
     }
 }

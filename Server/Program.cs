@@ -1,8 +1,12 @@
+global using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.ResponseCompression;
+using QuintrixFullstack.Server.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddDbContext<AppDbContext>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

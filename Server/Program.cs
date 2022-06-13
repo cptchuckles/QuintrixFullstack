@@ -1,5 +1,6 @@
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Authorization;
+global using QuintrixFullstack.Server.Models;
 using Microsoft.AspNetCore.ResponseCompression;
 using QuintrixFullstack.Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,8 +9,13 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionString = "DevelopmentConnection";
+if (Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT")?.ToLower() == "production")
+    connectionString = "ProductionConnection";
 
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDbContext<DbContext, AppDbContext>(
+    options => options.UseSqlite(builder.Configuration.GetConnectionString(connectionString))
+    );
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

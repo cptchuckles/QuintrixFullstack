@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using QuintrixFullstack.Server.Data;
 using QuintrixFullstack.Shared.Dto;
@@ -13,6 +14,22 @@ namespace QuintrixFullstack.Server.Controllers
         public UserController(AppDbContext context)
         {
             _context = context;
+        }
+
+        [Authorize]
+        [HttpGet("Whoami")]
+        [Produces("application/json")]
+        public ActionResult<UserInfoDto> WhoAmI()
+        {
+            var user = GetCurrentUser();
+            if (user is null) return NotFound("No valid user found");
+
+            return Ok(new UserInfoDto() {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Created = user.Created,
+                Roles = "NA" });
         }
 
         // GET: api/User
@@ -136,6 +153,20 @@ namespace QuintrixFullstack.Server.Controllers
         private bool UserExists(Guid id)
         {
             return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        private User? GetCurrentUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity is not null)
+            {
+                var claims = identity.Claims;
+                var username = claims.FirstOrDefault(e => e.Type == ClaimTypes.Name)?.Value;
+                return _context.Users?.FirstOrDefault(u => u.Username == username);
+            }
+
+            return null!;
         }
     }
 }

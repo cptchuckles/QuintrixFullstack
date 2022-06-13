@@ -1,5 +1,6 @@
 ﻿@page "/fetchdata"
 @using System.Net.Http.Headers
+@using QuintrixFullstack.Shared
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IAuthTokenProvider AuthTokenProvider
 @inject HttpClient Http
@@ -52,8 +53,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
-
-        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthTokenProvider.Token);
 
         try
         {

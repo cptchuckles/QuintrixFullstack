@@ -1,0 +1,46 @@
+@page "/user"
+@using QuintrixFullstack.Shared.Dto
+@inject HttpClient Http
+@attribute [Authorize]
+
+<h1>List of users</h1>
+
+@if (userList is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Created On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in userList)
+            {
+                <tr>
+                    <td scope="row">@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@user.Created</td>
+                    <td>
+                        <a href="/construction" class="btn btn-primary">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<UserInfoDto>? userList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userList = await Http.GetFromJsonAsync<List<UserInfoDto>>("/api/user");
+    }
+}

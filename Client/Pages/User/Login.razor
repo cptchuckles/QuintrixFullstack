@@ -1,0 +1,43 @@
+@page "/login"
+@using QuintrixFullstack.Shared.Dto
+@inject HttpClient Http
+@inject IAuthTokenProvider TokenProvider
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+
+<h1>Login</h1>
+
+<EditForm Model="@userLoginDto" OnValidSubmit="@TryLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <p class="d-flex flex-row">
+        <label for="username">Username or Email:</label>
+        <InputText id="username" @bind-Value="@userLoginDto.UsernameOrEmail" />
+        <ValidationMessage For="() => userLoginDto.UsernameOrEmail" />
+    </p>
+    <p class="d-flex flex-row">
+        <label for="password">Password:</label>
+        <InputText type="password" id="password" @bind-Value="@userLoginDto.Password" />
+        <ValidationMessage For="() => userLoginDto.Password" />
+    </p>
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+<a href="/register">Create an account</a>
+
+@code {
+    private UserLoginDto userLoginDto = new();
+
+    private async Task TryLogin()
+    {
+        var result = await Http.PostAsJsonAsync("api/login", userLoginDto);
+
+        if (result.IsSuccessStatusCode)
+        {
+            var token = await result.Content.ReadAsStringAsync();
+            TokenProvider.Token = token;
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            NavManager.NavigateTo("/account");
+        }
+    }
+}

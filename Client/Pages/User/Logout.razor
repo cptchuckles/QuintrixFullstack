@@ -1,0 +1,21 @@
+@page "/logout"
+@inject IAuthTokenProvider TokenProvider
+@inject AuthenticationStateProvider AuthStateProvider
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Logging out of @context.User.Identity.Name...</h1>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="mb-3">You are now logged out.</h1>
+        <a href="/" class="btn btn-primary">Home</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        TokenProvider.Token = null;
+        await AuthStateProvider.GetAuthenticationStateAsync();
+    }
+}

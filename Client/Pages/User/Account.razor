@@ -1,0 +1,55 @@
+@page "/account"
+@using QuintrixFullstack.Shared.Dto
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<AuthorizeView>
+    <Authorized>
+        @if (drawInfo)
+        {
+        <div class="d-flex flex-row align-items-baseline justify-content-between" style="width: 100%;">
+            <h1>@context.User.Identity.Name</h1>
+            <a href="/logout" class="btn btn-primary">Logout</a>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Claim Type</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var claim in context.User.Claims)
+            {
+                <tr>
+                    <td scope="row">@claim.Type</td>
+                    <td>@claim.Value</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <h1>You are not logged in</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private UserInfoDto? userInfo;
+    private bool drawInfo = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userInfo = await Http.GetFromJsonAsync<UserInfoDto>("api/user/whoami");
+            drawInfo = true;
+        }
+        catch (Exception e)
+        {
+            NavManager.NavigateTo("/logout");
+        }
+    }
+}

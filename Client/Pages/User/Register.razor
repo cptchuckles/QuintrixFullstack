@@ -1,0 +1,46 @@
+@page "/register"
+@using QuintrixFullstack.Shared.Dto
+@inject HttpClient Http
+@inject IAuthTokenProvider TokenProvider
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+
+<h1>Create an account</h1>
+
+<EditForm Model="@userRegisterDto" OnValidSubmit="@RegisterUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <p class="d-flex flex-row">
+        <label for="username">Username:</label>
+        <InputText id="username" @bind-Value="@userRegisterDto.Username" />
+        <ValidationMessage For="() => userRegisterDto.Username" />
+    </p>
+    <p class="d-flex flex-row">
+        <label for="email">Email:</label>
+        <InputText type="email" id="email" @bind-Value="@userRegisterDto.Email" />
+        <ValidationMessage For="() => userRegisterDto.Email" />
+    </p>
+    <p class="d-flex flex-row">
+        <label for="password">Password:</label>
+        <InputText type="password" id="password" @bind-Value="@userRegisterDto.Password" />
+        <ValidationMessage For="() => userRegisterDto.Password" />
+    </p>
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+@code {
+    private UserRegisterDto userRegisterDto = new();
+
+    private async Task RegisterUser()
+    {
+        var result = await Http.PostAsJsonAsync("api/register", userRegisterDto);
+
+        if (result.IsSuccessStatusCode)
+        {
+            var token = await result.Content.ReadAsStringAsync();
+            TokenProvider.Token = token;
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            NavManager.NavigateTo("/account");
+        }
+    }
+}

@@ -1,5 +1,7 @@
 ﻿@page "/fetchdata"
-@using QuintrixFullstack.Shared
+@using System.Net.Http.Headers
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IAuthTokenProvider AuthTokenProvider
 @inject HttpClient Http
 
 <PageTitle>Weather forecast</PageTitle>
@@ -45,9 +47,14 @@ else
 @code {
     private WeatherForecast[]? forecasts;
     private HttpRequestException? requestError;
+    private string? username;
 
     protected override async Task OnInitializedAsync()
     {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthTokenProvider.Token);
+
         try
         {
             forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");

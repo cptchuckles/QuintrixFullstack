@@ -6,5 +6,5 @@ public class UserInfoDto
     public string Username { get; set; }
     public string Email { get; set; }
     public DateTime Created { get; set; }
-    public string? Role { get; set; }
+    public string? Roles { get; set; }
 }

@@ -6,6 +6,7 @@ using QuintrixFullstack.Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using QuintrixFullstack.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,13 @@ if (Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT")?.ToLower() == "prod
 builder.Services.AddDbContext<DbContext, AppDbContext>(
     options => options.UseSqlite(builder.Configuration.GetConnectionString(connectionString))
     );
+
+builder.Services.AddSingleton<IRsaKeyProvider, RsaKeyProvider>(sp => {
+    var rsaKeyProvider = new RsaKeyProvider();
+    rsaKeyProvider.PublicKey.ImportFromPem(File.ReadAllText(builder.Configuration["Jwt:RSA:PublicKey"]));
+    rsaKeyProvider.PrivateKey.ImportFromPem(File.ReadAllText(builder.Configuration["Jwt:RSA:PrivateKey"]));
+    return rsaKeyProvider;
+});
 
 // Copy-pastad a bunch of shit (well i typed it) to get Bearer authentication working in Swagger.
 builder.Services.AddSwaggerGen(options => {

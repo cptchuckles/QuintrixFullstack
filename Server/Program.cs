@@ -22,8 +22,8 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
-        var rsaKey = System.Security.Cryptography.RSA.Create();
-        rsaKey.ImportFromPem(File.ReadAllText(builder.Configuration["Jwt:RSA:PublicKey"]));
+        var rsaPublicKey = System.Security.Cryptography.RSA.Create();
+        rsaPublicKey.ImportFromPem(File.ReadAllText(builder.Configuration["Jwt:RSA:PublicKey"]));
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -36,7 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             ValidateIssuerSigningKey = true,
             ValidAlgorithms = builder.Configuration.GetValue<string[]>("Jwt:Algorithms"),
-            IssuerSigningKey = new RsaSecurityKey(rsaKey)
+            IssuerSigningKey = new RsaSecurityKey(rsaPublicKey)
         };
     });
 

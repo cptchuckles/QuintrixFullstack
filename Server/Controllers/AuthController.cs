@@ -62,7 +62,7 @@ namespace QuintrixFullstack.Server.Controllers
                 return BadRequest("Username/Email or Password incorrect");
             
             if (! VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-                return BadRequest("Password incorrect");
+                return BadRequest("Username/Email or Password incorrect");
 
             return Ok(CreateToken(user));
         }
